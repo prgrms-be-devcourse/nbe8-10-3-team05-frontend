@@ -1,0 +1,120 @@
+################################
+# Backend (backend/back 기준)
+################################
+
+backend/back/HELP.md
+backend/back/.gradle/
+backend/back/build/
+
+!backend/back/gradle/wrapper/gradle-wrapper.jar
+!backend/back/**/src/main/**/build/
+!backend/back/**/src/test/**/build/
+
+################################
+# STS
+################################
+
+backend/back/.apt_generated
+backend/back/.classpath
+backend/back/.factorypath
+backend/back/.project
+backend/back/.settings
+backend/back/.springBeans
+backend/back/.sts4-cache
+backend/back/bin/
+
+!backend/back/**/src/main/**/bin/
+!backend/back/**/src/test/**/bin/
+
+################################
+# IntelliJ IDEA
+################################
+
+backend/back/.idea
+backend/back/*.iws
+backend/back/*.iml
+backend/back/*.ipr
+backend/back/out/
+
+!backend/back/**/src/main/**/out/
+!backend/back/**/src/test/**/out/
+
+################################
+# NetBeans
+################################
+
+backend/back/nbproject/private/
+backend/back/nbbuild/
+backend/back/dist/
+backend/back/nbdist/
+backend/back/.nb-gradle/
+
+################################
+# VS Code
+################################
+
+backend/back/.vscode/
+
+################################
+# Custom (DB files)
+################################
+
+**/*.mv.db
+**/*.trace.db
+
+backend/back/src/main/resources/application-dev.yml
+backend/back/src/main/resources/application-test.yml
+
+################################
+# Frontend (frontend 기준)
+################################
+
+# dependencies
+frontend/node_modules
+frontend/.pnp
+frontend/.pnp.*
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
+
+# testing
+frontend/coverage
+
+# next.js
+frontend/.next/
+frontend/out/
+
+# production
+frontend/build
+
+# misc
+frontend/.DS_Store
+frontend/*.pem
+
+# debug
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+frontend/.env*
+
+# vercel
+frontend/.vercel
+
+# typescript
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+
+################################
+# Global
+################################
+
+.idea/
+.DS_Store
+
+*.log
+backend/back/logs/
