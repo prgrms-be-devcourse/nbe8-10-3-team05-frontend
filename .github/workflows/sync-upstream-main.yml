@@ -1,9 +1,11 @@
-name: Force sync from 3rd upstream main
+name: Force sync from upstream main (keep workflows)
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"   # 10분마다 (원하면 조절)
+  # 수동 실행 버튼
   workflow_dispatch: {}
+  # 자동 동기화 (원하면 주기 바꿔도 됨)
+  schedule:
+    - cron: "*/30 * * * *" # 30분마다
 
 permissions:
   contents: write
@@ -22,16 +24,38 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Set git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Add upstream (3rd original) and fetch
         run: |
           git remote add upstream https://github.com/prgrms-be-devcourse/NBE8-10-3-Team05.git || true
           git fetch upstream main
 
-      - name: Force reset fork main to upstream/main
+      - name: Sync from upstream/main but keep .github/workflows
         run: |
-          git checkout main
-          git reset --hard upstream/main
+          set -e
 
-      - name: Push (force) to fork main
+          # 1) 원본(main)의 전체 내용을 워킹트리에 반영
+          git checkout main
+          git checkout upstream/main -- .
+
+          # 2) 단, workflows는 fork(main)의 것을 유지 (권한 이슈 방지)
+          git checkout main -- .github/workflows || true
+
+          # 3) 변경사항 커밋 (변경 없으면 스킵)
+          git add -A
+          git status --porcelain
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "chore: sync from upstream/main (keep workflows)"
+          else
+            echo "No changes to commit."
+          fi
+
+      - name: Push changes to fork main
         run: |
-          git push origin main --force
+          # main 브랜치 보호 규칙이 있으면 여기서 막힐 수 있음
+          git push origin main
