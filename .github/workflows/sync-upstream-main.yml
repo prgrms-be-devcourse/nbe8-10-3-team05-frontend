@@ -1,9 +1,7 @@
-name: Force sync from upstream main (keep workflows)
+name: Force sync from upstream main (skip workflows)
 
 on:
-  # 수동 실행 버튼
   workflow_dispatch: {}
-  # 자동 동기화 (원하면 주기 바꿔도 됨)
   schedule:
     - cron: "*/30 * * * *" # 30분마다
 
@@ -34,28 +32,39 @@ jobs:
           git remote add upstream https://github.com/prgrms-be-devcourse/NBE8-10-3-Team05.git || true
           git fetch upstream main
 
-      - name: Sync from upstream/main but keep .github/workflows
+      - name: Sync files from upstream/main but NEVER touch .github/workflows
         run: |
           set -e
-
-          # 1) 원본(main)의 전체 내용을 워킹트리에 반영
           git checkout main
-          git checkout upstream/main -- .
 
-          # 2) 단, workflows는 fork(main)의 것을 유지 (권한 이슈 방지)
-          git checkout main -- .github/workflows || true
+          # upstream/main의 파일 목록을 가져와서 workflows를 제외하고 체크아웃
+          git ls-tree -r --name-only upstream/main \
+            | grep -vE '^\.github/workflows/' \
+            | sed 's/^/"/; s/$/"/' \
+            > /tmp/files.txt
 
-          # 3) 변경사항 커밋 (변경 없으면 스킵)
+          # 파일이 너무 많아도 안전하게 xargs로 처리
+          cat /tmp/files.txt | xargs -n 200 git checkout upstream/main --
+
+          # upstream에선 삭제됐는데 fork에는 남아있는 파일도 정리(워크플로우 제외)
+          git ls-tree -r --name-only main \
+            | grep -vE '^\.github/workflows/' \
+            | sort > /tmp/main_files.txt
+
+          git ls-tree -r --name-only upstream/main \
+            | grep -vE '^\.github/workflows/' \
+            | sort > /tmp/up_files.txt
+
+          comm -23 /tmp/main_files.txt /tmp/up_files.txt > /tmp/to_delete.txt || true
+          if [ -s /tmp/to_delete.txt ]; then
+            cat /tmp/to_delete.txt | xargs -n 200 rm -f
+          fi
+
           git add -A
-          git status --porcelain
 
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "chore: sync from upstream/main (keep workflows)"
+            git commit -m "chore: sync from upstream/main (skip workflows)"
+            git push origin main
           else
             echo "No changes to commit."
           fi
-
-      - name: Push changes to fork main
-        run: |
-          # main 브랜치 보호 규칙이 있으면 여기서 막힐 수 있음
-          git push origin main
