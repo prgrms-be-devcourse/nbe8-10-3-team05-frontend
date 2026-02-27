@@ -1,0 +1,37 @@
+name: Force sync from 3rd upstream main
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # 10분마다 (원하면 조절)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: force-sync-main
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Add upstream (3rd original) and fetch
+        run: |
+          git remote add upstream https://github.com/prgrms-be-devcourse/NBE8-10-3-Team05.git || true
+          git fetch upstream main
+
+      - name: Force reset fork main to upstream/main
+        run: |
+          git checkout main
+          git reset --hard upstream/main
+
+      - name: Push (force) to fork main
+        run: |
+          git push origin main --force
