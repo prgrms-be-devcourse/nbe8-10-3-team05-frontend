@@ -39,7 +39,7 @@ jobs:
 
           # upstream/main의 파일 목록을 가져와서 workflows를 제외하고 체크아웃
           git ls-tree -r --name-only upstream/main \
-            | grep -vE '^\.github/workflows/|^frontend/vercel\.json$' \
+            | grep -vE '^\.github/workflows/|^frontend/vercel\.json$|^frontend/src/app/login/page\.tsx$' \
             | sed 's/^/"/; s/$/"/' \
             > /tmp/files.txt
 
@@ -48,11 +48,11 @@ jobs:
 
           # upstream에선 삭제됐는데 fork에는 남아있는 파일도 정리(워크플로우 제외)
           git ls-tree -r --name-only main \
-            | grep -vE '^\.github/workflows/|^frontend/vercel\.json$' \
+            | grep -vE '^\.github/workflows/|^frontend/vercel\.json$|^frontend/src/app/login/page\.tsx$' \
             | sort > /tmp/main_files.txt
 
           git ls-tree -r --name-only upstream/main \
-            | grep -vE '^\.github/workflows/|^frontend/vercel\.json$' \
+            | grep -vE '^\.github/workflows/|^frontend/vercel\.json$|^frontend/src/app/login/page\.tsx$' \
             | sort > /tmp/up_files.txt
 
           comm -23 /tmp/main_files.txt /tmp/up_files.txt > /tmp/to_delete.txt || true

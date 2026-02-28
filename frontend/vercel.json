@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "http://13.124.61.91/api/:path*"
+    },
+    {
+      "source": "/oauth2/:path*",
+      "destination": "http://13.124.61.91/oauth2/:path*"
     }
   ]
 }
