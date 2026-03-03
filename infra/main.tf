@@ -234,14 +234,9 @@ resource "aws_instance" "db_server" {
                   restart: always
                   image: mysql:latest
                   ports: [ "3306:3306" ]
-                  command:
-                    - "--mysqld.address=mysql:3306"
-                    - "--collect.info_schema.processlist"
-                    - "--collect.info_schema.innodb_metrics"
                   environment:
-                    # 최신 버전에서도 하위 호환성을 위해 유지하거나,
-                    # DATA_SOURCE_NAME 설정을 명시적으로 적어줍니다.
-                    - DATA_SOURCE_NAME=root:1234@(mysql:3306)/
+                    - MYSQL_ROOT_PASSWORD=${var.db_password}
+                    - MYSQL_DATABASE=my_db
                   healthcheck:
                     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${var.db_password}"]
                     interval: 15s
@@ -256,6 +251,9 @@ resource "aws_instance" "db_server" {
                   restart: always
                   image: prom/mysqld-exporter:latest
                   ports: [ "9104:9104" ]
+                  command:
+                    - "--mysqld.address=app_mysql_1:3306"
+                    - "--mysqld.username=root:1234"
                   environment:
                     - DATA_SOURCE_NAME=root:${var.db_password}@(mysql:3306)/
                   depends_on:
@@ -522,6 +520,10 @@ resource "aws_instance" "nginx_server" {
                       proxy_set_header Host \$host;
                       proxy_set_header X-Real-IP \$remote_addr;
                       proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+
+                      proxy_set_header X-Forwarded-Proto \$scheme;
+                      proxy_set_header X-Forwarded-Port \$server_port;
+
                       proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
                   }
 
