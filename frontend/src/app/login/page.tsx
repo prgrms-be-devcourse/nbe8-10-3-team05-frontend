@@ -50,8 +50,9 @@ export default function LoginPage() {
 
   // 소셜 로그인 핸들러
   const handleSocialLogin = (provider: "kakao" | "naver") => {
-    // 백엔드 OAuth2 엔드포인트로 리다이렉트
-    window.location.href = `/oauth2/authorization/${provider}`;
+    // Vercel 프록시를 거치면 세션 쿠키 도메인이 달라져서 OAuth2 state 검증 실패
+    // nginx 서버로 직접 요청해야 세션 쿠키가 동일 도메인(13.124.61.91)에 저장됨
+    window.location.href = `http://13.124.61.91/oauth2/authorization/${provider}`;
   };
 
   return (
